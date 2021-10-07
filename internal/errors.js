@@ -5,15 +5,13 @@
 /* eslint node-core/alphabetize-errors: "error" */
 /* eslint node-core/prefer-util-format-errors: "error" */
 
-'use strict';
-
 // The whole point behind this internal module is to allow Node.js to no
 // longer be forced to treat every error message change as a semver-major
 // change. The NodeError classes here all expose a `code` property whose
 // value statically and permanently identifies the error. While the error
 // message may change, the code should not.
 
-const codes = {};
+export const codes = {};
 
 // Lazy loaded
 let assert;
@@ -153,5 +151,3 @@ createErrorType('ERR_MISSING_ARGS',
     }
     return `${msg} must be specified`;
   }, TypeError);
-
-module.exports.codes = codes;

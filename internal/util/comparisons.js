@@ -1,7 +1,7 @@
 // Currently in sync with Node.js lib/internal/util/comparisons.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
-'use strict';
+import { types } from 'util';
 
 const regexFlagsSupported = /a/g.flags !== undefined;
 
@@ -47,7 +47,7 @@ const {
   isSymbolObject,
   isFloat32Array,
   isFloat64Array
-} = require('util/').types;
+} = types;
 
 function isNonIndex(key) {
   if (key.length === 0 || key.length > 10)
@@ -634,15 +634,10 @@ function objEquiv(a, b, strict, keys, memos, iterationType) {
   return true;
 }
 
-function isDeepEqual(val1, val2) {
+export function isDeepEqual(val1, val2) {
   return innerDeepEqual(val1, val2, kLoose);
 }
 
-function isDeepStrictEqual(val1, val2) {
+export function isDeepStrictEqual(val1, val2) {
   return innerDeepEqual(val1, val2, kStrict);
 }
-
-module.exports = {
-  isDeepEqual,
-  isDeepStrictEqual
-};

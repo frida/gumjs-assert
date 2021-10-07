@@ -1,12 +1,12 @@
 // Currently in sync with Node.js lib/internal/assert/assertion_error.js
 // https://github.com/nodejs/node/commit/0817840f775032169ddd70c85ac059f18ffcc81c
 
-'use strict';
+import { inspect } from 'util';
+import { codes } from '../errors.js';
 
-const { inspect } = require('util/');
-const { codes: {
-  ERR_INVALID_ARG_TYPE
-} } = require('../errors');
+const {
+  ERR_INVALID_ARG_TYPE,
+} = codes;
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
 function endsWith(str, search, this_len) {
@@ -317,7 +317,7 @@ function createErrDiff(actual, expected, operator) {
   return `${msg}${skipped ? skippedMsg : ''}\n${res}${other}${end}${indicator}`;
 }
 
-class AssertionError extends Error {
+export default class AssertionError extends Error {
   constructor(options) {
     if (typeof options !== 'object' || options === null) {
       throw new ERR_INVALID_ARG_TYPE('options', 'Object', options);
@@ -461,5 +461,3 @@ class AssertionError extends Error {
     return inspect(this, { ...ctx, customInspect: false, depth: 0 });
   }
 }
-
-module.exports = AssertionError;

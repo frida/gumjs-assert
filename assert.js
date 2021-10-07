@@ -21,35 +21,25 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
+import { codes } from './internal/errors.js';
+import AssertionError from './internal/assert/assertion_error.js';
+import { isDeepEqual, isDeepStrictEqual } from './internal/util/comparisons.js';
+import { inspect, types } from 'util';
 
-const { codes: {
+const {
   ERR_AMBIGUOUS_ARGUMENT,
   ERR_INVALID_ARG_TYPE,
   ERR_INVALID_ARG_VALUE,
   ERR_INVALID_RETURN_VALUE,
   ERR_MISSING_ARGS
-} } = require('./internal/errors');
-const AssertionError = require('./internal/assert/assertion_error');
-const { inspect } = require('util/');
-const { isPromise, isRegExp } = require('util/').types;
-
-const objectAssign = Object.assign ? Object.assign : require('es6-object-assign').assign;
-const objectIs = Object.is ? Object.is : require('object-is');
+} = codes;
+const { isPromise, isRegExp } = types;
 
 const errorCache = new Map();
 
-let isDeepEqual;
-let isDeepStrictEqual;
 let parseExpressionAt;
 let findNodeAround;
 let decoder;
-
-function lazyLoadComparison() {
-  const comparison = require('./internal/util/comparisons');
-  isDeepEqual = comparison.isDeepEqual;
-  isDeepStrictEqual = comparison.isDeepStrictEqual;
-}
 
 // Escape control characters but not \n and \t to keep the line breaks and
 // indentation intact.
@@ -73,7 +63,8 @@ let warned = false;
 // AssertionError's when particular conditions are not met. The
 // assert module must conform to the following interface.
 
-const assert = module.exports = ok;
+const assert = ok;
+export default assert;
 
 const NO_EXCEPTION_SENTINEL = {};
 
@@ -208,7 +199,6 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected');
   }
-  if (isDeepEqual === undefined) lazyLoadComparison();
   if (!isDeepEqual(actual, expected)) {
     innerFail({
       actual,
@@ -225,7 +215,6 @@ assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected');
   }
-  if (isDeepEqual === undefined) lazyLoadComparison();
   if (isDeepEqual(actual, expected)) {
     innerFail({
       actual,
@@ -242,7 +231,6 @@ assert.deepStrictEqual = function deepStrictEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected');
   }
-  if (isDeepEqual === undefined) lazyLoadComparison();
   if (!isDeepStrictEqual(actual, expected)) {
     innerFail({
       actual,
@@ -259,7 +247,6 @@ function notDeepStrictEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected');
   }
-  if (isDeepEqual === undefined) lazyLoadComparison();
   if (isDeepStrictEqual(actual, expected)) {
     innerFail({
       actual,
@@ -275,7 +262,7 @@ assert.strictEqual = function strictEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected');
   }
-  if (!objectIs(actual, expected)) {
+  if (!Object.is(actual, expected)) {
     innerFail({
       actual,
       expected,
@@ -290,7 +277,7 @@ assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
   if (arguments.length < 2) {
     throw new ERR_MISSING_ARGS('actual', 'expected');
   }
-  if (objectIs(actual, expected)) {
+  if (Object.is(actual, expected)) {
     innerFail({
       actual,
       expected,
@@ -380,7 +367,6 @@ function expectedException(actual, expected, msg, fn) {
       throw new ERR_INVALID_ARG_VALUE('error',
                                       expected, 'may not be an empty object');
     }
-    if (isDeepEqual === undefined) lazyLoadComparison();
     keys.forEach(key => {
       if (
         typeof actual[key] === 'string' &&
@@ -600,7 +586,7 @@ assert.ifError = function ifError(err) {
 function strict(...args) {
   innerOk(strict, args.length, ...args);
 }
-assert.strict = objectAssign(strict, assert, {
+assert.strict = Object.assign(strict, assert, {
   equal: assert.strictEqual,
   deepEqual: assert.deepStrictEqual,
   notEqual: assert.notStrictEqual,
