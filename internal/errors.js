@@ -11,11 +11,10 @@
 // value statically and permanently identifies the error. While the error
 // message may change, the code should not.
 
-export const codes = {};
+import assert from '../assert.js';
+import util from 'util';
 
-// Lazy loaded
-let assert;
-let util;
+export const codes = {};
 
 function createErrorType(code, message, Base) {
   if (!Base) {
@@ -87,7 +86,6 @@ function includes(str, search, start) {
 createErrorType('ERR_AMBIGUOUS_ARGUMENT', 'The "%s" argument is ambiguous. %s', TypeError);
 createErrorType('ERR_INVALID_ARG_TYPE',
   (name, expected, actual) => {
-    if (assert === undefined) assert = require('../assert');
     assert(typeof name === 'string', "'name' must be a string");
 
     // determiner: 'must be' or 'must not be'
@@ -113,7 +111,6 @@ createErrorType('ERR_INVALID_ARG_TYPE',
     return msg;
   }, TypeError);
 createErrorType('ERR_INVALID_ARG_VALUE', (name, value, reason = 'is invalid') => {
-  if (util === undefined) util = require('util/');
   let inspected = util.inspect(value);
   if (inspected.length > 128) {
     inspected = `${inspected.slice(0, 128)}...`;
@@ -132,7 +129,6 @@ createErrorType('ERR_INVALID_RETURN_VALUE', (input, name, value) => {
 }, TypeError);
 createErrorType('ERR_MISSING_ARGS',
   (...args) => {
-    if (assert === undefined) assert = require('../assert');
     assert(args.length > 0, 'At least one arg needs to be specified');
     let msg = 'The ';
     const len = args.length;

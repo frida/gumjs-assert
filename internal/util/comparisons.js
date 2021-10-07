@@ -19,10 +19,6 @@ const arrayFromMap = map => {
   return array;
 };
 
-const objectIs = Object.is ? Object.is : require('object-is');
-const objectGetOwnPropertySymbols = Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols : () => [];
-const numberIsNaN = Number.isNaN ? Number.isNaN : require('is-nan');
-
 function uncurryThis(f) {
   return f.call.bind(f);
 }
@@ -65,7 +61,7 @@ function getOwnNonIndexProperties(value) {
   return Object.keys(value)
     .filter(isNonIndex)
     .concat(
-      objectGetOwnPropertySymbols(value)
+      Object.getOwnPropertySymbols(value)
         .filter(Object.prototype.propertyIsEnumerable.bind(value))
     );
 }
@@ -148,7 +144,7 @@ function areEqualArrayBuffers(buf1, buf2) {
 function isEqualBoxedPrimitive(val1, val2) {
   if (isNumberObject(val1)) {
     return isNumberObject(val2) &&
-           objectIs(Number.prototype.valueOf.call(val1),
+           Object.is(Number.prototype.valueOf.call(val1),
                      Number.prototype.valueOf.call(val2));
   }
   if (isStringObject(val1)) {
@@ -191,14 +187,14 @@ function innerDeepEqual(val1, val2, strict, memos) {
   if (val1 === val2) {
     if (val1 !== 0)
       return true;
-    return strict ? objectIs(val1, val2) : true;
+    return strict ? Object.is(val1, val2) : true;
   }
 
   // Check more closely if val1 and val2 are equal.
   if (strict) {
     if (typeof val1 !== 'object') {
-      return typeof val1 === 'number' && numberIsNaN(val1) &&
-        numberIsNaN(val2);
+      return typeof val1 === 'number' && Number.isNaN(val1) &&
+        Number.isNaN(val2);
     }
     if (typeof val2 !== 'object' || val1 === null || val2 === null) {
       return false;
@@ -330,7 +326,7 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
   }
 
   if (strict && arguments.length === 5) {
-    const symbolKeysA = objectGetOwnPropertySymbols(val1);
+    const symbolKeysA = Object.getOwnPropertySymbols(val1);
     if (symbolKeysA.length !== 0) {
       let count = 0;
       for (i = 0; i < symbolKeysA.length; i++) {
@@ -345,13 +341,13 @@ function keyCheck(val1, val2, strict, memos, iterationType, aKeys) {
           return false;
         }
       }
-      const symbolKeysB = objectGetOwnPropertySymbols(val2);
+      const symbolKeysB = Object.getOwnPropertySymbols(val2);
       if (symbolKeysA.length !== symbolKeysB.length &&
           getEnumerables(val2, symbolKeysB).length !== count) {
         return false;
       }
     } else {
-      const symbolKeysB = objectGetOwnPropertySymbols(val2);
+      const symbolKeysB = Object.getOwnPropertySymbols(val2);
       if (symbolKeysB.length !== 0 &&
           getEnumerables(val2, symbolKeysB).length !== 0) {
         return false;
@@ -431,7 +427,7 @@ function findLooseMatchingPrimitives(prim) {
       // a regular number and not NaN.
       // Fall through
     case 'number':
-      if (numberIsNaN(prim)) {
+      if (Number.isNaN(prim)) {
         return false;
       }
   }
