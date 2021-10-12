@@ -11,7 +11,6 @@
 // value statically and permanently identifies the error. While the error
 // message may change, the code should not.
 
-import assert from '../assert.js';
 import util from 'util';
 
 export const codes = {};
@@ -86,8 +85,6 @@ function includes(str, search, start) {
 createErrorType('ERR_AMBIGUOUS_ARGUMENT', 'The "%s" argument is ambiguous. %s', TypeError);
 createErrorType('ERR_INVALID_ARG_TYPE',
   (name, expected, actual) => {
-    assert(typeof name === 'string', "'name' must be a string");
-
     // determiner: 'must be' or 'must not be'
     let determiner;
     if (typeof expected === 'string' && startsWith(expected, 'not ')) {
@@ -129,7 +126,6 @@ createErrorType('ERR_INVALID_RETURN_VALUE', (input, name, value) => {
 }, TypeError);
 createErrorType('ERR_MISSING_ARGS',
   (...args) => {
-    assert(args.length > 0, 'At least one arg needs to be specified');
     let msg = 'The ';
     const len = args.length;
     args = args.map((a) => `"${a}"`);
